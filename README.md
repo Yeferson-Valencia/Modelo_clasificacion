@@ -70,16 +70,6 @@ El proyecto utiliza las siguientes características clínicas del MDS-UPDRS Part
 pip install pandas numpy scikit-learn torch torchvision tensorflow matplotlib tqdm openpyxl
 ```
 
-### Uso Básico
-
-#### Para el modelo simple (pruebas.py):
-```bash
-python pruebas.py
-```
-
-#### Para el notebook completo (pruebas.ipynb):
-Abrir en Jupyter Notebook o JupyterLab y ejecutar las celdas secuencialmente.
-
 ## Resultados y Métricas
 
 El modelo evalúa el rendimiento usando:
@@ -87,18 +77,6 @@ El modelo evalúa el rendimiento usando:
 - **AUC-ROC**: Área bajo la curva ROC
 - **Precision/Recall/F1-Score**: Para ambas clases (Control/Parkinson)
 - **Validación Cruzada**: 20-fold stratified para robustez estadística
-
-### Ejemplo de Salida (pruebas.py):
-```
---- Cross-Validation Results (20 folds) ---
-Average Test Loss: 0.xxxx +/- 0.xxxx
-Average Test Accuracy: 0.xxxx +/- 0.xxxx
-Average Test AUC: 0.xxxx +/- 0.xxxx
-
-Average Classification Metrics:
-  Control - Precision: 0.xxxx, Recall: 0.xxxx, F1-score: 0.xxxx
-  Parkinson - Precision: 0.xxxx, Recall: 0.xxxx, F1-score: 0.xxxx
-```
 
 ## Metodología
 
