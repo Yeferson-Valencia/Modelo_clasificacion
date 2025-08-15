@@ -189,21 +189,6 @@ Todos los modelos son evaluados utilizando:
    - Ajustar arquitecturas de red según necesidades
    - Cambiar métricas de evaluación
 
-## Resultados Esperados
-
-### Rendimiento Típico:
-- **Accuracy**: 85-95% dependiendo de la modalidad
-- **AUC**: >0.90 para modelos multimodales
-- **Tiempo de entrenamiento**: 
-  - SPECT solo: ~30 minutos
-  - Multimodal: ~2-3 horas
-
-### Archivos de Salida:
-- Modelos entrenados (`.pth`)
-- Métricas de evaluación (CSV)
-- Gráficos de rendimiento (PNG)
-- Reportes de clasificación (TXT)
-
 ## Notas Técnicas
 
 - El notebook utiliza rutas absolutas específicas del sistema
