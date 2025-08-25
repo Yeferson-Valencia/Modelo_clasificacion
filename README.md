@@ -29,13 +29,12 @@ Script de Python que implementa un modelo de red neuronal más simple para clasi
 ## Estructura de Datos
 
 ### Datos Clínicos
-El proyecto utiliza las siguientes características clínicas del MDS-UPDRS Part III:
-- `NP3RIGRU`: Rigidez extremidad superior derecha
-- `NP3RIGLU`: Rigidez extremidad superior izquierda  
-- `NP3RIGRL`: Rigidez extremidad inferior derecha
-- `NP3RIGLL`: Rigidez extremidad inferior izquierda
-- `NP3HMOVR`: Movimientos de manos derecha
-- `NP3HMOVL`: Movimientos de manos izquierda
+El proyecto utiliza características clínicas del MDS-UPDRS Part III con diferentes configuraciones según el modelo:
+
+**Modelo Simple (pruebas.py)**: 6 variables de rigidez y movimientos de manos
+**Modelo Multimodal (pruebas.ipynb)**: 14 variables completas del MDS-UPDRS Part III
+
+*Ver sección [Preprocesamiento de Variables Clínicas](#preprocesamiento-de-variables-clínicas) para detalles completos.*
 
 ### Archivos de Datos
 - `embcExtension_control.csv`: Datos de sujetos control
@@ -58,10 +57,13 @@ El proyecto utiliza las siguientes características clínicas del MDS-UPDRS Part
 - Implementado en PyTorch
 
 ### 3. Red Neuronal Simple (pruebas.py)
-- Arquitectura: 6 → 64 → 32 → 1
-- Funciones de activación: ReLU + Sigmoid
-- Regularización: Dropout (0.3)
-- Optimizador: Adam (lr=0.001)
+- **Clase**: `Net` (hereda de `nn.Module`)
+- **Arquitectura**: 6 → 64 → 32 → 1 neuronas
+- **Funciones de activación**: ReLU + Sigmoid
+- **Regularización**: Dropout (0.3) en cada capa oculta
+- **Optimizador**: Adam (lr=0.001)
+- **Función de pérdida**: Binary Cross Entropy (BCELoss)
+- **Validación**: 20-fold estratificada con StandardScaler por fold
 
 ## Instalación y Uso
 
@@ -77,6 +79,114 @@ El modelo evalúa el rendimiento usando:
 - **AUC-ROC**: Área bajo la curva ROC
 - **Precision/Recall/F1-Score**: Para ambas clases (Control/Parkinson)
 - **Validación Cruzada**: 20-fold stratified para robustez estadística
+
+## Preprocesamiento de Variables Clínicas
+
+### Variables del MDS-UPDRS Part III Utilizadas
+
+#### Modelo 1: Red Neuronal Simple (pruebas.py)
+El modelo simple utiliza **6 variables clínicas** específicas del MDS-UPDRS Part III:
+
+- `NP3RIGRU`: Rigidez extremidad superior derecha
+- `NP3RIGLU`: Rigidez extremidad superior izquierda  
+- `NP3RIGRL`: Rigidez extremidad inferior derecha
+- `NP3RIGLL`: Rigidez extremidad inferior izquierda
+- `NP3HMOVR`: Movimientos de manos derecha
+- `NP3HMOVL`: Movimientos de manos izquierda
+
+#### Modelo 2: Vision Transformer Multimodal (pruebas.ipynb)
+El modelo multimodal utiliza **14 variables clínicas** del MDS-UPDRS Part III:
+
+- `DBSYN`: Síntomas de discinesia
+- `NP3SPCH`: Habla
+- `NP3FACXP`: Expresión facial
+- `NP3RIGN`: Rigidez en cuello
+- `NP3RIGRU`: Rigidez extremidad superior derecha
+- `NP3RIGLU`: Rigidez extremidad superior izquierda
+- `NP3RIGRL`: Rigidez extremidad inferior derecha
+- `NP3RIGLL`: Rigidez extremidad inferior izquierda
+- `NP3HMOVR`: Movimientos de manos derecha
+- `NP3HMOVL`: Movimientos de manos izquierda
+- `NP3GAIT`: Marcha
+- `NP3FRZGT`: Congelamiento de la marcha
+- `NP3PSTBL`: Estabilidad postural
+- `NP3POSTR`: Postura
+
+### Pipeline de Preprocesamiento
+
+#### 1. Manejo de Valores Faltantes
+```python
+# Imputación robusta por mediana para variables numéricas
+for col in columnas_a_usar:
+    if combined_df[col].isnull().any():
+        if pd.api.types.is_numeric_dtype(combined_df[col]):
+            median_val = combined_df[col].median()
+            combined_df[col] = combined_df[col].fillna(median_val)
+```
+
+#### 2. Normalización por Fold
+```python
+# Normalización independiente para cada fold (evita data leakage)
+scaler = StandardScaler()
+X_train_scaled_fold = scaler.fit_transform(X_train_fold)
+X_test_scaled_fold = scaler.transform(X_test_fold)
+```
+
+#### 3. Características del Preprocesamiento
+
+- **Robustez**: Imputación por mediana para valores faltantes
+- **Normalización**: StandardScaler para evitar dominancia de variables con mayor escala
+- **Validación**: Estratificación para mantener proporciones de clases
+- **Sincronización**: Alineación de datos clínicos con imágenes por ID de paciente (modelo multimodal)
+
+## Integración en los Modelos de Clasificación
+
+### Modelo 1: Red Neuronal Simple (pruebas.py)
+
+#### Arquitectura:
+```python
+class Net(nn.Module):
+    def __init__(self, input_size):
+        super(Net, self).__init__()
+        self.layer_1 = nn.Linear(input_size, 64)    # 6 variables → 64 neuronas
+        self.relu_1 = nn.ReLU()
+        self.dropout_1 = nn.Dropout(0.3)
+        self.layer_2 = nn.Linear(64, 32)            # 64 → 32 neuronas
+        self.relu_2 = nn.ReLU()
+        self.dropout_2 = nn.Dropout(0.3)
+        self.output_layer = nn.Linear(32, 1)        # 32 → 1 salida
+        self.sigmoid = nn.Sigmoid()
+```
+
+#### Flujo de integración:
+- Las 6 variables clínicas se alimentan directamente como entrada
+- Validación cruzada estratificada de 20 folds
+- Normalización independiente en cada fold
+- Entrenamiento con Adam optimizer (lr=0.001)
+
+### Modelo 2: Vision Transformer Multimodal (pruebas.ipynb)
+
+#### Integración multimodal:
+```python
+class ClinicalImageDataset(Dataset):
+    # Carga simultánea de:
+    # - Imágenes MRI
+    # - Imágenes SPECT (reales y sintéticas)
+    # - Variables clínicas (las 14 del MDS-UPDRS)
+```
+
+#### Procesamiento conjunto:
+- **Imágenes**: Redimensionadas a 256x256, normalizadas
+- **Variables clínicas**: Normalizadas con StandardScaler
+- **Fusión**: Vision Transformer procesa embeddings separados para cada modalidad
+- **Combinación**: Embeddings concatenados antes de la clasificación final
+
+### Métricas de Evaluación:
+- Accuracy, AUC-ROC, Precision, Recall, F1-Score
+- Validación cruzada de 20 folds para robustez estadística
+- Evaluación separada por clase (Control vs Parkinson)
+
+Este enfoque garantiza que las variables clínicas del MDS-UPDRS Part III se integren de manera efectiva tanto en modelos unimodales como multimodales, manteniendo la integridad y calidad de los datos a lo largo del pipeline de machine learning.
 
 ## Metodología
 
