@@ -58,7 +58,7 @@ El proyecto utiliza las siguientes características clínicas del MDS-UPDRS Part
 - Implementado en PyTorch
 
 **Integración de Variables Clínicas:**
-Las 14 variables clínicas del MDS-UPDRS Part III se integran junto con los datos de imágenes MRI y SPECT en un enfoque multimodal unificado. Las variables clínicas son normalizadas y procesadas a través de capas de embedding especializadas que las transforman en representaciones de alta dimensión compatibles con los embeddings generados por las imágenes. Esta fusión multimodal permite que el modelo Transformer combine información clínica cuantitativa con características visuales extraídas de las imágenes cerebrales antes de realizar la clasificación final. El pipeline asegura la sincronización temporal y espacial entre los datos clínicos e imágenes de cada paciente, maximizando el potencial diagnóstico del enfoque multimodal.
+Las 14 variables clínicas del MDS-UPDRS Part III se integran junto con los datos de imágenes MRI y SPECT en un enfoque multimodal unificado. Las variables clínicas son normalizadas y procesadas a través de capas de embedding especializadas que las transforman en representaciones de alta dimensión compatibles con los embeddings generados por las imágenes. Esta fusión multimodal permite que el modelo Transformer combine información clínica cuantitativa con características visuales extraídas de las imágenes cerebrales antes de realizar la clasificación final.
 
 ### 3. Red Neuronal Simple (pruebas.py)
 - Arquitectura: 6 → 64 → 32 → 1
@@ -67,7 +67,7 @@ Las 14 variables clínicas del MDS-UPDRS Part III se integran junto con los dato
 - Optimizador: Adam (lr=0.001)
 
 **Integración de Variables Clínicas:**
-Las 6 variables clínicas seleccionadas del MDS-UPDRS Part III (NP3RIGRU, NP3RIGLU, NP3RIGRL, NP3RIGLL, NP3HMOVR, NP3HMOVL) se utilizan directamente como entradas del modelo. Estas variables son preprocesadas mediante imputación de valores faltantes usando la mediana y normalización con StandardScaler aplicada independientemente en cada fold de la validación cruzada estratificada de 20 folds. Este enfoque de preprocesamiento por fold evita el data leakage y mantiene la robustez estadística del pipeline, asegurando estimaciones confiables del rendimiento del modelo en datos clínicos.
+Las 6 variables clínicas seleccionadas del MDS-UPDRS Part III (NP3RIGRU, NP3RIGLU, NP3RIGRL, NP3RIGLL, NP3HMOVR, NP3HMOVL) se utilizan directamente como entradas del modelo. Estas variables son preprocesadas mediante imputación de valores faltantes usando la mediana y normalización con StandardScaler aplicada independientemente en cada fold de la validación cruzada estratificada de 20 folds.
 
 ## Instalación y Uso
 
